@@ -1,597 +1,574 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Demo Exp</title>
-    <script src="jspsych/dist/jspsych.js"></script>
-    <script src="jspsych/dist/plugin-html-button-response.js"></script>
-    <script src="jspsych/dist/plugin-survey-multi-choice.js"></script>
-    <script src="jspsych/dist/plugin-survey-likert.js"></script>
-    <script src="jspsych/dist/plugin-preload.js"></script>
-    <script src="jspsych/dist/plugin-survey-text.js"></script>
-    <link href="jspsych/dist/jspsych.css" rel="stylesheet" type="text/css" />
+    <title>My experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-video-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-video-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.1/css/jspsych.css" rel="stylesheet" type="text/css" />
   </head>
   <body></body>
   <script>
 
-///////////////////////////////////////////////////////////// some optional styling //////////////////////////////////////////////
-
-var styles = `
-  p {
-    text-align: justify
-  }
-`
-var styleSheet = document.createElement("style")
-styleSheet.type = "text/css"
-styleSheet.innerText = styles
-document.head.appendChild(styleSheet)
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/* initialize jsPsych */
 var jsPsych = initJsPsych({
-  experiment_width: 1000,
-  on_finish: function(){
-    window.location = "https://app.prolific.co/submissions/complete?cc=136BDB5F"
-  }
-}); // I'm using prolific to recruit subjects and the link above sends subjects back to prolific after the study with the study-specific completion code
+    experiment_width: 1000});
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//var condition = CONDITION; // a global variable that comes from 'cognition.run'; the platform I use to host experiments
-var condition; // I usually also create an "internal" condition variable 
-
-jsPsych.data.addProperties({condition: condition}); // add the condition to the data 
-
-var subj_code; // a variable that later stores a random subject code
-
-function makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * 
- charactersLength));
-   }
-   return result;
-} // this function creates a random subject code using the characters listed above
-
-subj_code = makeid(12); // generate the actual code (12 strings)
-
-console.log(subj_code); // give it back to the console
-
-jsPsych.data.addProperties({subj_code: subj_code}); // add the code to the data 
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* create timeline */
-var timeline = [];
+  var timeline = [];
 
-/* preload images */
-var preload = {
-  type: jsPsychPreload,
-  images: ['img/uni_org_color_li.png', 
-           'img/illustration.png', 
-           'img/N_32_025.png',
-           'img/N_32_075.png', 
-           'img/N_128_025.png', 
-           'img/N_128_075.png']
-}
+/* preload media */
+    var preload = {
+        type: jsPsychPreload,
+        images: ['img/tom.png'],
+        videos: ['img/accident.webm']
+    };
 timeline.push(preload);
 
+/* capture info from Prolific */
+    //var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    //var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    //var session_id = jsPsych.data.getURLVariable('SESSION_ID');
 
-//////////////////////// experiment-specific variables
+    //jsPsych.data.addProperties({
+      //subject_id: subject_id,
+      //study_id: study_id,
+      //session_id: session_id
+    //});
 
-var i = 0;
-var likert_scale; 
-var scale_orientation;
-
-
-
-//////////////////////////////////////////////////////
-/* A timeline variable for condition selection (just for offline demo of the study) */
-
-var select = {
-  type: jsPsychSurveyText,
-  questions: [
-    {
-		prompt: 
-		`
-		<p><b>This study is in DEMO mode. <br> Select a condition: type in a number between 1 and 4.</b></p>
-        <p>
-            1 and 2: small sample size <br>
-            3 and 4: large sample size <br>
-
-            (orientation of the rating scale is counterbalanced between subjects)
-        </p>
-		`, 
-		placeholder: 'number between 1 and 4',
-		required: true,
-		name: 'CondSel',
-	},
-  ],
-	on_finish: function(data){
-	condition = data.response.CondSel,
-	console.log(condition);
-	} 
-}
-
-//////////////////////////////////////////////////////
-// feedback screen showing the condition that has been selected (used in demo mode)
-
-var cond_selected = {
-    type: jsPsychHtmlButtonResponse, 
-    stimulus: function() {
-        return "You chose to see Condition "+condition;
-    }, 
-    choices: ['Continue']
-}; 
-
-timeline.push(select, cond_selected); 
+/* Welcome message, choose condition */
+var welcome = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<p style="text-align:left;"><b>Welcome!</b><br>
+      <br>
+      This is a demo experiment.<br>
+      <br>
+      At the bottom of this page, please select a value between 1 and 6 below to indicate which experimental condition you would like to see.<br>
+      <br>
+      <b>1 or 2: morally good victim condition<br></b>
+      <br>
+      <b>3 or 4: morally bad victim condition<br></b>
+      <br>
+      <b>5 or 6: morally neutral victim condition<br></b>
+      <br>
+      There are two conditions per victim character because of the balancing of response keys, they do not differ in content.<br>
+      <br>
+      You can run this demo several times to see different conditions by refreshing the link.<br>
+      <br>
+      After this screen, everything you see will be identical to what participants in the experiment saw.<br>
+      <br>
+      </p>`,
+    prompt: ``,
+    choices: [1, 2, 3, 4, 5, 6],
+    on_finish: function(data){
+      condition = data.response; // Store the chosen condition in the CONDITION variable
+      console.log(condition);
+    }
+};
+timeline.push(welcome);
 
 
-//////////////////////////////////////////////////////
-/* First screen of the (non-demo version) experiment: asking for confirmations */
 
-var confs = {
-    type: jsPsychSurveyMultiChoice, 
+/* confirm laptop */
+    var confs = {
+    type: jsPsychSurveyMultiChoice,
     questions: [
         {
-            prompt: "This study works properly only on Desktop PCs and Laptops, and not on Smartphones or Tablets. Before you proceed, please confirm that you take part via Desktop PC or Laptop.",
+            prompt: `<p style="text-align:left;">This study only works properly on Desktop PCs and Laptops with a physical keyboard, and not on Smartphones or Tablets. Before you proceed, please confirm that you take part via Desktop PC or Laptop.`,
             name: 'DesktopConf',
-            options: ['1: I confirm', '2: I do not confirm'], 
+            options: ['I confirm'], 
             required: true
-        },
-        {
-            prompt: "For the scientific utility of the results, it is very important that you provide complete and careful responses. How seriously will you take your participation in the study?", 
-            name: 'AttentConf', 
-            options: ['1: I will take it seriously', '2: I will not take it seriously'], 
-            required: true
-        }, 
-    ], 
-    on_finish: function(data){ //I'm also using this screen to store some conditional variable values that get added to the data
-        if (condition == 1) {
-            scale_orientation = "not_cause_left"
-            likert_scale = ["Certain that it does <u>not</u> cause the expression of the gene", " ", " ", " ", " ", "Fully uncertain", " ", " ", " ", " ", "Certain that it causes the expression of the gene"]; 
-            sample_size = "N32"; 
-        } else if (condition == 2) {
-            scale_orientation = "not_cause_right";
-            likert_scale = ["Certain that it causes the expression of the gene", " ", " ", " ", " ", "Fully uncertain", " ", " ", " ", " ", "Certain that it does <u>not</u> cause the expression of the gene"];
-            sample_size = "N32";
-        } else if (condition == 3) {
-            scale_orientation = "not_cause_left";
-            likert_scale = ["Certain that it does <u>not</u> cause the expression of the gene", " ", " ", " ", " ", "Fully uncertain", " ", " ", " ", " ", "Certain that it causes the expression of the gene"];
-            sample_size = "N128";
-        } else if (condition == 4) {
-            scale_orientation = "not_cause_right";
-            likert_scale = ["Certain that it causes the expression of the gene", " ", " ", " ", " ", "Fully uncertain", " ", " ", " ", " ", "Certain that it does <u>not</u> cause the expression of the gene"];
-            sample_size = "N128";
-      };
-      jsPsych.data.addProperties({desktop_conf: data.response.DesktopConf, attent_conf: data.response.AttentConf, scale_orient: scale_orientation, sample_size: sample_size})
-    }, 
+        }],
     preamble: `
-              <p><img src="img/uni_org_color_li.png" width = 100%></img></p>
-              <p><b>Welcome to this experiment and thank you very much for your participation.</b></p>
-              <p>Please note: This study contains memory and comprehension checks with which we aim to ensure that you correctly understood the central aspects of the study.</p>
-        	  `
-};
-
-timeline.push(confs); 
-
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Scenario Instruction timeline variable */
-
-var instruction = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 
-      `
-      <p><i>Please read the following fictitious scenario thoroughly:</i></p>
-
-      <p>
-        A group of biologists working in a laboratory wants to find out whether certain chemicals (two different substances in total) cause particular genes (two different genes) to be expressed in mice.  
-      </p>
-
-      <p style="text-align:center;"><img src="img/illustration.png" width = 50%></img></p>
-
-      <p>They tested the effects of the two different chemicals on the two different genes in separate studies. 
-        In each study, a different random sample of mice was injected with a different chemical and later examined to see how many mice expressed the studied gene. 
-        Of course, a gene may sometimes be expressed for natural reasons in animals not injected with a chemical substance. 
-        Thus, in each study the biologists also tested a second random sample of mice not injected with any chemical (a control sample).
-      </p>
-
-      <p>
-        We will show you the results of the two studies that the biologists conducted and will ask you for each study how strongly you believe, based on the obtained results, 
-        that the investigated chemical causes the expression of the studied gene.
-      </p>
-
-      <p><i>If you've studied the information thoroughly, please click "Continue" to proceed.</i></p>
-      `,
-    choices: ['Continue']
-}
-
-timeline.push(instruction);
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* comprehension test that subjects need to pass in order to proceed to the experiment's main phase */
-
-var instr_check_first_part = {
-    type: jsPsychSurveyMultiChoice, 
-    name: 'instr_check', 
-    questions: [
-        {
-        prompt: "<b>What do the biologists want to find out?</b>", 
-        options: [  '1: Whether the expression of certain genes increases longevity in mice.', 
-                    '2: Whether certain chemical substances cause certain genes to be expressed in mice.',
-                    '3: Whether certain genes cause mice to consume certain chemical substances.', 
-                    '4: Whether male mice react differently to certain chemical substances than female mice.'],
-        required: true,
-        name: 'goal_check'
-        },
-    ],
-    preamble: `
-        <p><i>
-            You have learned the relevant information about the scenario. 
-            Before you can proceed to the next part of the experiment, 
-            we need to ensure that you've understood the scenario's central aspects. 
-            Please answer the following comprehension-check questions. 
-            You can only proceed once you've answered all check questions correctly. 
-            If you answer any of the questions incorrectly, we'll show you the scenario description again.
-        </i></p>
-    `, 
-    on_finish: function(data){
-        i ++; 
-        console.log("instr test rounds: "+ i); 
-        if (data.response.goal_check == '2: Whether certain chemical substances cause certain genes to be expressed in mice.'){
-            instr_check_1 = "correct"; 
-        } else {
-            instr_check_1 = "incorrect";
-        }; 
-        console.log("result instruction check: "+instr_check_1); 
-        jsPsych.data.addProperties({instr_tests: i});
-    },
-};
-
-timeline.push(instr_check_first_part); 
-
-
-var instr_check_second_part = {
-  type: jsPsychSurveyMultiChoice,
-  name: 'instr_check_2',
-  questions: [
-    {
-      prompt: "<b>How did the biologists test their question?</b>", 
-      options: ['1: They conducted experiments with random samples of mice assigned to control and treatment groups.', 
-                '2: They simply observed a single group of mice in which all mice got the experimental treatment.',
-                '3: They did not conduct any study at all; they just did a literature search.'],
-      required: true,
-      name: 'method_check'
-    },
-  ],
-  preamble: `
-      <p><i>
-        Please answer this second comprehension check question.
-      </i></p>
-    `,
-  on_finish: function(data){
-    if (data.response.method_check == '1: They conducted experiments with random samples of mice assigned to control and treatment groups.') {
-        instr_check_2 = "correct";
-    } else {
-        instr_check_2 = "incorrect";
+    <p style="text-align:left;"><b>Welcome to this experiment and thank you very much for your participation.</b></p>`
     };
-    console.log("result instruction check: "+instr_check_2);
-  },
-};
 
-timeline.push(instr_check_second_part);
+timeline.push(confs);
 
-
-/////////////////////////////////////////// handle the dynamics fo the comprehension test //////////////////////////////////////////
-// screen if instr check was failed 
-var instr_check_failed = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 
-    `
-    <p><b>Unfortunately, you did NOT answer all comprehension check questions correctly. We will therefore show you the instructions again.</b></p>
-    
-    <p>Please click the button below to read the instruction again and repeat the test.</p>
-    `
-    ,
-    choices: ['Back to instructions']
-}
-
-
-var loop = {
-    timeline: [instr_check_failed, instruction, instr_check_first_part, instr_check_second_part], 
-    loop_function: function(){
-        if(instr_check_1 == "incorrect" || instr_check_2 == "incorrect"){
-            return true; 
-        } else {
-            return false; 
-        }
-    }
-}
-
-var if_node = {
-    timeline: [loop], 
-    conditional_function: function(){
-        if(instr_check_1 == "incorrect" || instr_check_2 == "incorrect"){
-            return true;
-        } else {
-           return false;
-        }
-    }
-}
-
-timeline.push(if_node); // note: the if_node evaluates the status of the instruction test variable and, given that it has value "incorrect", triggers the loop node
-
-
-// screen if instr check was passed
-var instr_check_passed = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 
-    `
-    <p><b>You answered all comprehension check questions CORRECTLY and can proceed to the next part of the study.</b></p>
-
-    <p>On the following screens you will see the results of the experiments the biologists conducted. 
-      For each experiment, we'll ask you how confident you are that the tested chemical causes the expression of the tested gene.</p>
-    
-    <p>Please click "Continue" to proceed.</p>
-    `
-    ,
+ /* instructions morally good victim */
+ var intro_goodvictim = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 
+    `<p style="text-align:left;"><b>Please read the following instructions carefully. You will be asked questions about them later on.</b><br>
+    <br>
+    On the following pages, you will learn about the life of a man named Tom.</p><br>
+    <br>
+    <p style="text-align:center;"><img src="img/tom.png" width = 20%></img></p>
+    <br>
+    <p style="text-align:left;">Tom was known for his tireless dedication to social causes. Environmental responsibility was a key aspect of Tom’s moral compass. He consistently made sustainable choices, embracing practices such as recycling, composting, and reducing his carbon footprint. Tom advocated for renewable energy and educated others on the importance of protecting the planet for future generations.<br> 
+    <br>
+    Tom consistently demonstrated unwavering compassion and empathy towards others. He actively volunteered at local charities, and supported marginalized communities. In his personal life, he prioritized open and honest communication, always strove to treat others with respect and fairness. Tom’s friends and family remember his integrity, his unwavering support and his drive to stand up for what is right, even in difficult situations.<br>
+    <br>
+    Tom’s positive outlook and resilience in the face of challenges inspired those around him. His everyday acts of compassion, whether lending a helping hand to those in need or practicing random acts of kindness, had a ripple effect on those around him, encouraging them to follow suit.<br>
+    <br>
+    </p>`,
     choices: ['Continue']
-}
+      };
 
-timeline.push(instr_check_passed);
-
-
-////////////////////////////////////////////////////////////////// Test phase of the study /////////////////////////////////////////////////////////////////////////////////
-////////////////////////////// Test Cases
-
-var test_N32_025 = {
-    type: jsPsychSurveyLikert, 
-    questions: [
-        {
-            prompt: `<b>Based on the results of this study: How confident are you that the tested chemical causes the expression of the tested gene?</b>`, 
-            name: 'rating_N32_025',
-            labels: function(){return likert_scale}
-        },
-    ], 
-    randomize_question_order: false, 
-    preamble: 
-    `
-        <p>
-        Below you see the results of the study in which the biologists tested whether chemical C-ATX® causes the expression of the gene X-PO4. 
-        The biologists tested 32 mice in this study. The upper panel shows the mice injected with the chemical. The lower panel shows the untreated mice.
-        </p>
-
-        <p style="text-align:center;"><img src="img/N_32_025.png" width = 50%></img></p>
-    `, 
-    on_finish: function(data){
-        jsPsych.data.addProperties({rating_025: data.response.rating_N32_025}); 
-    }, 
-}; 
-
-
-var test_N32_075 = {
-  type: jsPsychSurveyLikert,
-  questions: [
-    {
-      prompt: `<b>Based on the results of this study: How confident are you that the tested chemical causes the expression of the tested gene?</b>`, 
-      name: 'rating_N32_025', 
-      labels: function () {return likert_scale}
-    },
-  ],
-  randomize_question_order: false,
-  preamble:  
-    `                 
-      <p>
-        Below you see the results of the study in which the biologists tested whether chemical C-JWQ® causes the expression of the gene X-PO4. 
-        The biologists tested 32 mice in this study. The upper panel shows the mice injected with the chemical. The lower panel shows the untreated mice.
-      </p>
-
-      <p style="text-align:center;"><img src="img/N_32_075.png" width = 50%></img></p>
-    `
-  ,
-  on_finish: function(data){
-	  jsPsych.data.addProperties({rating_075: data.response.rating_N32_075});
-  },
-};
-
-
-
-var test_N128_025 = {
-  type: jsPsychSurveyLikert,
-  questions: [
-    {
-      prompt: `<b>Based on the results of this study: How confident are you that the tested chemical causes the expression of the tested gene?</b>`, 
-      name: 'rating_N128_025', 
-      labels: function () {return likert_scale}
-    },
-  ],
-  randomize_question_order: false,
-  preamble:
-    `                 
-     <p>
-      Below you see the results of the study in which the biologists tested whether chemical C-ATX® causes the expression of the gene X-PO4. 
-      The biologists tested 128 mice in this study. The upper panel shows the mice injected with the chemical. The lower panel shows the untreated mice.
-    </p>
-
-     <p style="text-align:center;"><img src="img/N_128_025.png" width = 50%></img></p>
-    `
-  ,
-  on_finish: function(data){
-	  jsPsych.data.addProperties({rating_025: data.response.rating_N128_025});
-  },
-};
-
-
-
-var test_N128_075 = {
-  type: jsPsychSurveyLikert,
-  questions: [
-    {
-      prompt: `<b>Based on the results of this study: How confident are you that the tested chemical causes the expression of the tested gene?</b>`, 
-    name: 'rating_N128_075', 
-    labels: function () {return likert_scale}
-  },
-  ],
-  randomize_question_order: false,
-  preamble: 
-   `                 
-    <p>
-      Below you see the results of the study in which the biologists tested whether chemical C-JWQ® causes the expression of the gene X-PO4. 
-      The biologists tested 128 mice in this study. The upper panel shows the mice injected with the chemical. The lower panel shows the untreated mice.
-    </p>
-
-    <p style="text-align:center;"><img src="img/N_128_075.png" width = 50%></img></p>
-  `
-  ,
-  on_finish: function(data){
-	  jsPsych.data.addProperties({rating_075: data.response.rating_N128_075});
-  },
-};
-
-
-// The different test cases should be presented in random order, which can be accomplished using shuffled vectors
-
-var test_cases_N32 = [test_N32_025, test_N32_075];  // vector of the two screens shown in the N = 32 conditions
-var test_cases_N128 = [test_N128_025, test_N128_075]; // vector of the two screens shown in the N = 128 conditions
-
-var test_cases_N32_shuffled = jsPsych.randomization.repeat(test_cases_N32, 1); // create a new vector with a random order of the elements for N = 32
-var test_cases_N128_shuffled = jsPsych.randomization.repeat(test_cases_N128, 1); // create a new vector with a random order of the elements for N = 128
-
-
-// intermediate screen between the two test screens
-var intermed = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 
-   `
-    On the next screen you'll see the results of the second experiment in which the biologists tested a different chemical and a different gene in a new random sample of mice.
-  `,
-    choices: ['Continue']
-}
-
-
-// Now make conditional timeline variables that decide, based on sample size condition, which screens will be shown
-
-var N32 = {
-    timeline: [test_cases_N32_shuffled[0], intermed, test_cases_N32_shuffled[1]], 
-    conditional_function: function(){
-        if(sample_size == "N32"){
-            return true;
-        } else {
-            return false;
-        }
-    }
-} // if sample size is N32, then the vector elements listed will be pushed to the timeline
-
-var N128 = {
-    timeline: [test_cases_N128_shuffled[0], intermed, test_cases_N128_shuffled[1]],
-    conditional_function: function(){
-        if(sample_size == "N128"){
-            return true;
-        } else {
-            return false;
-        }
-    }
-} // if sample size is N128, then the vector elements listed will be pushed to the timeline
-
-timeline.push(N32, N128); // this pushes the conditional timeline variables to the timeline (but the content that will be shown is specified within these variables)
-
-
-
-//////////////////////////////////////////////////////////////// End of the main part of the study ////////////////////////////////////////////////////////////////////
-/////////////////////////////////////// assessing demographics
-var demogr_age = {
-  type: jsPsychSurveyText,
-  name: 'Age_query',
-  questions: [
-    {
-      prompt: `<p><i>You're almost done with the study, we'd just like to ask you for some additional information.</i></p>
-                <p>How old are you?</p>`, 
-      placeholder: 'Age as a number', 
-      required: true,
-      name: 'Age'
-    },
-  ],
-  on_finish: function(data){
-	  jsPsych.data.addProperties({age: data.response.Age});
-  },
-}
-
-
-var demogr_gender = {
-  type: jsPsychSurveyMultiChoice,
-  name: 'gender_query',
-  questions: [
-    {
-      prompt: "Please indicate with which gender you identify.", 
-      options: ['1: male', '2: female', '3: non-binary', '4: prefer not to say'],
-      required: true,
-      name: 'Gender'
-    },
-  ],
-  on_finish: function(data){
-	  jsPsych.data.addProperties({gender: data.response.Gender});
-  },
-};
-
-timeline.push(demogr_age, demogr_gender);
-
-
-/////////////////////////////////////// giving subjects the chance to report any technical issues
-var tech_issues = {
-  type: jsPsychSurveyText,
-  name: 'Tech_issue_query',
-  questions: [
-    {
-      prompt: 'In the text field below you can report any errors that you came across during the study (e.g., technical issues, layout problems, spelling errors, errors in program logic and flow, etc.).', 
-      rows: 10, 
-      columns: 100, 
-      required: false,
-      name: 'Tech_issue_report'
-    },
-  ],
-  on_finish: function(data){
-	  jsPsych.data.addProperties({tech_issues: data.response.Tech_issue_report});
-	  console.log(data.response.Tech_issue_report)
-  },
-}
-timeline.push(tech_issues);
-
-
-///////////////////////////////////// debriefing screen 
-
-var debriefing = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: 
-    `
-    <img src="img/uni_org_color_li.png" width = 100%></img>
-    <p><b>Thank you for taking part in this study!</b></p>
   
-    <p>The aim of this experiment is to find out how people infer causal relations from observed statistical regularities. 
-    If you are interested in further details or if you have any questions or comments concerning the experiment, 
-    feel free to contact me (Simon Stephan) under <i>sstepha1@uni-goettingen.de</i>
+ /* instructions morally bad victim */
+ var intro_badvictim = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 
+    `<p style="text-align:left;"><b>Please read the following instructions carefully. You will be asked questions about them later on.</b><br>
+    <br>
+    On the following pages, you will be presented with a scenario about a man called Tom.</p><br>
+    <br>
+    <p style="text-align:center;"><img src="img/tom.png" width = 20%></img></p>
+    <br>
+    <p style="text-align:left;">Tom was known for his complete disregard for ethical principles. In his pursuit of power and success, he was willing to trample over anyone who stood in his way, using dishonest and exploitative practices to achieve his goals. Tom lacked the ability to genuinely connect with others on an emotional level, viewing them solely as tools to further his own agenda.<br>
+    <br>
+    In his personal life, Tom’s interactions were marked by callousness and indifference. He consistently manipulated and exploited those around him for personal gain, showing no remorse for the suffering he inflicted on others. Whether it was deceiving people for financial advantage or manipulating their emotions for his own amusement, Tom's moral compass was deeply distorted.<br>
+    <br>
+    Tom’s acquaintances remember his consistent pattern of dishonesty, betrayal, and complete lack of accountability. He was unapologetic about his actions and refused to take responsibility for the harm he caused, deflecting blame onto others and manipulating situations to his advantage.<br>
+    </p>`,
+    choices: ['Continue']
+      };
+
+ /* instructions morally neutral victim */
+ var intro_neutralvictim = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 
+    `<p style="text-align:left;"><b>Please read the following instructions carefully. You will be asked questions about them later on.</b><br>
+    <br>
+    On the following pages, you will be presented with a scenario about a man called Tom.</p><br>
+    <br>
+    <p style="text-align:center;"><img src="img/tom.png" width = 20%></img></p>
+    <br>
+    <p style="text-align:left;">Tom was an individual who led an unremarkable and somewhat mundane life. He possessed features that were neither striking nor memorable, with an average build and an unremarkable appearance that often went unnoticed.<br>
+    <br>
+    His wardrobe consisted of plain and practical clothing, lacking any sense of style or individuality. In his day-to-day routine, Tom fulfilled his obligations responsibly, but he occasionally displayed a tendency to be overly cautious and stingy with his money.<br>
+    <br>
+    In conversations, he engaged in polite but unmemorable exchanges, rarely offering insightful or engaging remarks. Tom pursued a range of hobbies and interests, although his lack of passion or expertise in any specific area made him appear somewhat uninteresting.<br>
+    </p>`,
+    choices: ['Continue']
+      };
+
+
+ /* manipulation check moral character */
+ var manipulation_check = {
+      type: jsPsychHtmlButtonResponse,
+      data: { variable: 'character' },
+      stimulus: `<p style="text-align:center;"><img src="img/tom.png" width = 20%></img></p><br>
+               <br>
+               <p style="text-align:center;"><b>How would you evaluate Tom´s moral character?</b>`,
+      choices: ['1: very bad', '2: bad', '3: neutral', '4: good', '5: very good'], 
+      required: true,
+      horizontal: true
+      }; 
     
-    <p>To ensure you receive your reward, please click the button below to return to the Prolific website:</p>
-    `
-    ,
-    choices: ['Finish study']
+ 
+
+ /* instructions video */
+ var instr_video = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 
+    `<p style="text-align:left;">Tom died in a traffic accident. In the following, we will show you a short video depicting the situation that led to Tom‘s death (as a cartoon animation, with no graphic details).<br>
+    <br>
+    You will see the video 3 times in a row. Please focus on each of the characters in the scenario, as you will be asked questions about them.<br>
+    <br>
+    The video will begin playing immediately as soon as you click Continue. After three runs of the video, you will be redirected to the subsequent task automatically.<br></p>`,
+    choices: ['Continue']
+      };
+
+
+ /* video display */
+var video = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: 
+    `<p style="text-align:left;"></p>
+    <p style="text-align:left;">      
+          <video width="1000" loop autoplay>
+            <source src="img/accident.webm" type="video/webm">
+            Your browser does not support the video tag.
+          </video>
+        </p>`,
+    choices: ["NO_KEYS"],
+    response_ends_trial: false,
+    trial_duration: 33000
+      };
+
+
+ 
+ /* instructions reaction time task - e for yes */
+ var instr_rt_eforyes = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 
+    `<p style="text-align:left;">We will now present you with a series of proposals about what could have been different in the scenario you just saw. Specifically, you will be asked to consider different ways of how Tom’s life could have been saved.<br>
+    <br>
+    For each proposal, your task will be to indicate whether what we suggest would have been possible or not.<br> 
+    <br>
+    You will be able to indicate <b>yes</b> or <b>no</b> by pressing the <b>e key</b> or the <b>i key</b> on your keyboard.<br>
+    <br>
+    <b>Pressing e means yes, and pressing i means no.</b><br> 
+    <br> 
+    We will be measuring your <b>reaction time</b> when you answer. Therefore, please ensure that you are not distracted while participating in this experiment (please turn off music, TV, or anything else that might be distracting, and ensure that you will not be disturbed during the next few minutes).<br>
+    <br>
+    Please remember the key assignment, and please also remember to answer as quickly as possible. There will be a <b>time limit of 8 seconds</b> to provide a response to each proposal.<br>
+    <br>
+    Click Continue when you are ready to start.<br></p>`,
+    choices: ['Continue']
+      };
+
+
+ /* instructions reaction time task - i for yes */
+ var instr_rt_iforyes = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: 
+    `<p style="text-align:left;">We will now present you with a series of proposals about what could have been different in the scenario you just saw. Specifically, you will be asked to consider different ways of how Tom’s life could have been saved.<br>
+    <br>
+    For each proposal, your task will be to indicate whether what we suggest would have been possible or not.<br> 
+    <br>
+    You will be able to indicate <b>yes</b> or <b>no</b> by pressing the <b>i key</b> or the <b>e key</b> on your keyboard.<br>
+    <br>
+    <b>Pressing i means yes, and pressing e means no.</b><br> 
+    <br> 
+    We will be measuring your <b>reaction time</b> when you answer. Therefore, please ensure that you are not distracted while participating in this experiment (please turn off music, TV, or anything else that might be distracting, and ensure that you will not be disturbed during the next few minutes).<br>
+    <br>
+    Please remember the key assignment, and please also remember to answer as quickly as possible. There will be a <b>time limit of 8 seconds</b> to provide a response to each proposal.<br>
+    <br>
+    Click Continue when you are ready to start.<br></p>`,
+    choices: ['Continue']
+      };
+
+
+ /* reaction time task */
+ var fixation = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<div style="font-size:60px;">+</div>',
+        choices: "NO_KEYS",
+        trial_duration: function(){
+            return jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0];
+          },
+        data: {
+          task: 'fixation'
+        }
+    };
+
+var possibilities = [
+        { stimulus: `The man in the blue jacket could have pushed Tom to the side.`},
+        { stimulus: `The man in the blue jacket could have pulled Tom out of the way of the bus.`},
+        { stimulus: `The man in the blue jacket could have gestured at the bus driver to veer off the street.`},
+        { stimulus: `The man in the blue jacket could have yelled at the driver to break immediately.`},
+        { stimulus: `The man in the blue jacket could have yelled at Tom to get out of the way of the bus.`},
+        { stimulus: `The business woman could have pushed Tom out of the way of the bus.`},
+        { stimulus: `The business woman could have dragged Tom out of the way of the bus.`},
+        { stimulus: `The business woman could have gestured at the bus driver to veer off the street.`},
+        { stimulus: `The business woman could have stopped Tom from crossing the road.`},
+        { stimulus: `The business woman could have signaled at Tom not to cross the road.`},
+        { stimulus: `The bus driver could have swerved off the road to avoid a collision.`},
+        { stimulus: `The bus driver could have hit the brakes in time to avoid a collision.`},
+        { stimulus: `The bus driver could have honked at Tom to keep him off the road.`},
+        { stimulus: `The bus driver could have yelled at Tom out the window to stay back.`},
+        { stimulus: `The bus driver could have flashed his lights to catch Tom's attention.`},
+        { stimulus: `The bus driver could have brought Tom to a halt with his mind.`},
+        { stimulus: `The man in the blue jacket could have stopped the bus with his bare hands.`},
+        { stimulus: `The business woman could have stopped the bus with her mind.`}     
+    ];
+
+var test_eforyes = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        choices: ['e', 'i'],
+        prompt: `<br>Was this possible?<br><br><b>Press e for yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Press i for no</b>'`,
+        trial_duration: 8000,
+        data: {
+          task: 'response',
+        }
+    }
+
+var test_iforyes = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('stimulus'),
+        choices: ['e', 'i'],
+        prompt: `<br>Was this possible?<br><br><b>Press e for no&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Press i for yes</b>'`,
+        trial_duration: 8000,
+        data: {
+          task: 'response',
+        }
+    }
+
+var rt_task_eforyes = {
+        timeline: [fixation,test_eforyes],
+        timeline_variables: possibilities,
+        randomize_order: true,
+        repetitions: 1
+    };
+
+
+var rt_task_iforyes = {
+        timeline: [fixation,test_iforyes],
+        timeline_variables: possibilities,
+        randomize_order: true,
+        repetitions: 1
+    };
+
+/* Should Tom have been saved? e for yes*/
+var savetom_eforyes = {
+        type: jsPsychHtmlKeyboardResponse,
+        data: { variable: 'should' },
+        stimulus: `Should Tom have been saved?`,
+        choices: ['e', 'i'],
+        prompt: `<br><b>Press e for yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Press i for no</b>'`,
+        trial_duration: 8000,
+        data: {
+          task: 'response',
+        }
+    }
+
+var rt_savetom_eforyes = {
+        timeline: [fixation,savetom_eforyes]
 };
-timeline.push(debriefing);
+
+/* Should Tom have been saved? i for yes*/
+var savetom_iforyes = {
+        type: jsPsychHtmlKeyboardResponse,
+        data: { variable: 'should' },
+        stimulus: `Should Tom have been saved?`,
+        choices: ['e', 'i'],
+        prompt: `<br><b>Press i for yes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Press e for no</b>'`,
+        trial_duration: 8000,
+        data: {
+          task: 'response',
+        }
+    }
+
+var rt_savetom_iforyes = {
+        timeline: [fixation,savetom_iforyes]
+};
+
+/* responsibility questions */
+var resp_man = {
+      type: jsPsychHtmlButtonResponse,
+      data: { variable: 'resp_man' },
+      stimulus: `<p style="text-align:center;">The man in the blue jacket is responsible for Tom's accident.<br>
+                <br>
+                <b>How much do you agree with this statement?</b>`,
+      choices: ['1: not at all', '2: slightly', '3: moderately', '4: largely', '5: completely'], 
+      required: true,
+      horizontal: true
+      }; 
+
+var resp_woman = {
+      type: jsPsychHtmlButtonResponse,
+      data: { variable: 'resp_woman' },
+      stimulus: `<p style="text-align:center;">The business woman is responsible for Tom's accident.<br>
+                <br>
+                <b>How much do you agree with this statement?</b>`,
+      choices: ['1: not at all', '2: slightly', '3: moderately', '4: largely', '5: completely'], 
+      required: true,
+      horizontal: true
+      }; 
+
+var resp_driver = {
+      type: jsPsychHtmlButtonResponse,
+      data: { variable: 'resp_driver' },
+      stimulus: `<p style="text-align:center;">The bus driver is responsible for Tom's accident.<br>
+                <br>
+                <b>How much do you agree with this statement?</b>`,
+      choices: ['1: not at all', '2: slightly', '3: moderately', '4: largely', '5: completely'], 
+      required: true,
+      horizontal: true
+      }; 
+
+var resp_Tom = {
+      type: jsPsychHtmlButtonResponse,
+      data: { variable: 'resp_tom' },
+      stimulus: `<p style="text-align:center;">Tom is responsible for his own accident.<br>
+                <br>
+                <b>How much do you agree with this statement?</b>`,
+      choices: ['1: not at all', '2: slightly', '3: moderately', '4: largely', '5: completely'], 
+      required: true,
+      horizontal: true
+      }; 
+
+
+// Shuffle function to randomly reorder an array
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// Define the resp_randomized timeline with shuffled objects
+var resp_randomized = {
+  timeline: shuffleArray([resp_man, resp_woman, resp_driver, resp_Tom]),
+  repetitions: 1
+};
 
 
 
-/////////////////////////////////////////////////////////////////
+//var resp_randomized = {
+  //    timeline: [resp_man,resp_woman,resp_driver,resp_Tom],
+    //  randomize_order: true,
+      //repetitions: 1
+  //};
+
+
+ /* principle of alternative possibilities */
+ var principle = {
+      type: jsPsychHtmlButtonResponse,
+      data: { variable: 'PAP' },
+      stimulus: `<p style="text-align:left;">In law and philosophy, people sometimes affirm that a person is responsible for a certain outcome only if they could have done otherwise.<br>
+                <br>
+                For example, if a person sets their alarm for 7 AM and is late to work that day, they are responsible for having been late to work because they could have set their alarm for 6 AM instead.<br>
+                <br>
+                This idea, that a person is responsible for a certain outcome if they could have done otherwise, is called the Principle of Alternative Possibilities.<br>
+                <br>
+                <p style="text-align:center;"><b>How much do you agree that the Principle of Alternative Possibilities is true?</b>`,
+      choices: ['1: strongly disagree', '2: disagree', '3: neutral', '4: agree', '5: strongly agree'], 
+      required: true,
+      horizontal: true
+      }; 
+
+
+ /* define timelines per condition */
+ var goodvictim_eforyes = {
+    timeline: [intro_goodvictim,manipulation_check,instr_video,video,instr_rt_eforyes,rt_task_eforyes,rt_savetom_eforyes,resp_randomized,principle], 
+    conditional_function: function(){
+        if(condition == 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    } 
+
+var goodvictim_iforyes = {
+    timeline: [intro_goodvictim,manipulation_check,instr_video,video,instr_rt_iforyes,rt_task_iforyes,rt_savetom_iforyes,resp_randomized,principle], 
+    conditional_function: function(){
+        if(condition == 1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    } 
+
+var badvictim_eforyes = {
+    timeline: [intro_badvictim,manipulation_check,instr_video,video,instr_rt_eforyes,rt_task_eforyes,rt_savetom_eforyes,resp_randomized,principle], 
+    conditional_function: function(){
+        if(condition == 2){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    } 
+
+var badvictim_iforyes = {
+    timeline: [intro_badvictim,manipulation_check,instr_video,video,instr_rt_iforyes,rt_task_iforyes,rt_savetom_iforyes,resp_randomized,principle], 
+    conditional_function: function(){
+        if(condition == 3){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    } 
+
+    var neutralvictim_eforyes = {
+    timeline: [intro_neutralvictim,manipulation_check,instr_video,video,instr_rt_eforyes,rt_task_eforyes,rt_savetom_eforyes,resp_randomized,principle], 
+    conditional_function: function(){
+        if(condition == 4){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    } 
+
+var neutralvictim_iforyes = {
+    timeline: [intro_neutralvictim,manipulation_check,instr_video,video,instr_rt_iforyes,rt_task_iforyes,rt_savetom_iforyes,resp_randomized,principle], 
+    conditional_function: function(){
+        if(condition == 5){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    } 
+
+timeline.push(goodvictim_eforyes,goodvictim_iforyes,badvictim_eforyes,badvictim_iforyes,neutralvictim_eforyes,neutralvictim_iforyes);
+
+/* end block: demographics, debriefing, redirection to prolific*/
+  var age = {
+      type: jsPsychSurveyText,
+      data: { variable: 'age' },
+      questions: [
+        {prompt: 'Please indicate your age', 
+        name: 'age',
+        required: true}
+      ]
+    };
+    timeline.push(age);
+
+
+  var gender = {
+      type: jsPsychSurveyMultiChoice,
+      data: { variable: 'gender' },
+      questions: [
+    {
+      prompt: `<p style="text-align:left;">Please indicate your gender`, 
+      name: 'gender', 
+      options: ['female', 'male', 'non-binary', 'another identity', 'no answer'], 
+      required: true,
+      horizontal: true
+      }, 
+    ],
+    };
+  timeline.push(gender);
+
+  var attention = {
+      type: jsPsychSurveyMultiChoice,
+      data: { variable: 'attention' },
+      questions: [
+    {
+      prompt: `<p style="text-align:left;">If Peter is taller than Alex, and Alex is taller than Max, who is the shortest among them?`, 
+      name: 'attention', 
+      options: ['Peter', 'Alex', 'Max'], 
+      required: true,
+      horizontal: true
+      }, 
+    ],
+    };
+timeline.push(attention); 
+
+
+  var remarks = {
+      type: jsPsychSurveyText,
+      data: { variable: 'remarks' },
+      questions: [
+        {prompt: 'Do you have any further comments about this study? (optional)', name: 'comments'}
+      ]
+    };
+    timeline.push(remarks);
+
+
+  var debriefing = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: 
+    `<p style="text-align:left;">Thanks for taking part in this experiment!</b><br>
+      <br>
+      The purpose of this study is to investigate how judgments about possibility are affected by morality.<br>
+      <br>
+      This is the end of the demo version of the experiment. You can close this window now, or refresh to start over and see a different experimental condition.</p>
+      `
+    ,
+    choices: ["NO_KEYS"],
+      };
+    timeline.push(debriefing);
+
 /* start the experiment */
 jsPsych.run(timeline);
-
-  
 </script>
 </html>
